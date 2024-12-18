@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Products</title>
+  <link rel="stylesheet" href="../style/header.css">
+  <link rel="stylesheet" href="../style/addProd.css">
+  <script src="../script/HeaderManager.js"></script>
+  <script src="../script/RequestManager.js"></script>
+  <script src="../script/settings.js"></script>
+  <script src="../script/ProductsApiManager.js"></script>
+</head>
+<body>
+     <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        new HeaderManager('products/add.html', menuItems);           
+        const data = JSON.parse(sessionStorage.getItem('productEdit'));   
+        const product = data?.product
+        
+          if (product) {
+             sessionStorage.setItem('product_id', product._id);
+
+            document.getElementById('title').value = product.title || '';
+            document.getElementById('price').value = product.price || '';
+            document.getElementById('counter').value = product.counter || '';
+            document.getElementById('imagePrew').src = `data:image;base64,${product.imageSrc}` || '';
+        } 
+      })
+        // Чістка сессіі якщо юзер переходить без відправки форми 
+        window.addEventListener('beforeunload', () => {
+        sessionStorage.removeItem('product_id');
+        sessionStorage.removeItem('productEdit');
+      });
+    </script>
+   <div class="wrapper">
+      <h1>Add Phone</h1>
+      <form method="post" enctype="multipart/form-data" id="form-prod">
+        <label for="title">Brand:
+        <input type="text" id="title" name="title" required value=""/>
+          </label>
+        <label for="price">Price:
+        <input type="number" id="price" name="price" required value=""/>
+          </label>
+        <label for="counter">Quantity:
+        <input type="number" id="counter" name="counter" required value=""/>
+        </label>
+        <label for="image">Image:
+        <input type="file" id="image_file" name="imageSrc"  value=""/>
+        </label>
+        <div class="form__image">
+          <img id="imagePrew" src="../image/empty-file.jpg" alt="">
+        </div>
+        <button id="btn-sub" type="submit">Submit</button>
+      </form>
+    </div>
+    <script>
+       document.addEventListener('DOMContentLoaded', async () => {
+         const btnSubmitSave = document.getElementById('btn-sub')
+        const productId = sessionStorage.getItem('product_id');
+         if (productId) {
+           btnSubmitSave.textContent = 'Save'
+         }
+
+         // add prew image
+        document.getElementById('image_file').addEventListener('change', 
+        function () {
+          let reader = new FileReader()
+          reader.onload = function (e) {
+            document.getElementById('imagePrew').src = e.target.result
+          }
+          reader.readAsDataURL(this.files[0])
+        }
+      )
+       })
+      document.getElementById('form-prod').addEventListener('submit', async function (e) {
+        e.preventDefault()        
+        const form = e.target  
+        const url = RequestManager.getServerRoute('/products/add')
+        const productId = sessionStorage.getItem('product_id');
+        try {          
+          if (productId) {             
+          const response = await ProductsApiManager.editProduct(productId, form)
+          console.log('Product edit successfully:', response)
+          } else {
+          const response = await ProductsApiManager.addProduct(url, form)
+          console.log('Product added successfully:', response)
+          }
+          sessionStorage.removeItem('product_id');
+          sessionStorage.removeItem('productEdit');
+          window.location.href = '../products/list.html'
+        } catch (error) {
+          console.error('Error adding product:', error)
+        }
+      })
+    </script>
+</body>
+</html>

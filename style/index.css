@@ -1,0 +1,29 @@
+body {
+  padding: 50px;
+  font-family: "Lucida Grande";
+  font-size: 14px;
+}
+
+h1 {
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: orchid;
+}
+.task__list {
+    display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  & li {
+  list-style-type: none;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #666;
+  }
+  & h5 {
+  font-size: 25px;
+  font-weight: 700;
+  color: #333;
+}
+}

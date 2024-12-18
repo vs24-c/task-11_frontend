@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products</title>
+    <link rel="stylesheet" href="../style/list.css" />
+    <link rel="stylesheet" href="../style/header.css" />
+    <script src="../script/ProductsApiManager.js"></script>
+    <script src="../script/RequestManager.js"></script>
+    <script src="../script/ListDataManager.js"></script>
+    <script src="../script/settings.js"></script>
+    <script src="../script/HeaderManager.js"></script>
+  </head>
+  <body>
+   <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        new HeaderManager('products/list.html', menuItems)
+      })
+    </script>
+    <div class="wrapper">
+      <div class="products__title">
+        <h1>Catalog Phone</h1>
+        <script>
+        if (RequestManager.isAuthenticated()) {
+            const sortSelect = ListDataManager.creatSortSelect()          
+        }
+        </script>
+      </div>
+      <div id="products-container" class="products__body">
+      </div>
+    </div>
+      <script>
+      // Функція, що виконується при завантаженні сторінки
+      window.onload = async function () {
+        let dataSort = null;
+            if (document.querySelector('.products__sort')) {
+              const selectSort = document.querySelector('.products__sort');
+              selectSort.addEventListener('change', async (event) => { 
+                event.preventDefault()
+                dataSort = { sort: event.target.value };                               
+                await fetchDataAndDisplay(dataSort)
+              });
+            } 
+
+        // Функція для отримання даних та відображення таблиці продуктів
+        async function fetchDataAndDisplay(dataSort) {
+          const tableContainer = document.getElementById('products-container')
+          try {
+            tableContainer.innerHTML = ''
+
+            // Отримання даних продуктів з сервера
+            // const data = await ProductsApiManager.getProducts()
+            let data    
+            if (dataSort !== null) {              
+              data = await ProductsApiManager.postSortForm(dataSort)                
+            } else {
+              data = await ProductsApiManager.getProducts()
+            }       
+            // Обробка зображень продуктів
+            const productsList = data.products.map((prod) => ({
+              ...prod,
+              imageSrc: prod.imageSrc,
+              title: prod.title,
+              price: prod.price,
+              counter: prod.counter,
+            }))
+            
+            if (productsList) {
+              const fields = { imageSrc: '', title: '', price: '', counter: '',}
+              
+              const createLinkFunction = (id) => `/products/add/${id}`
+              // Створення  продуктів
+              const productsBody = ListDataManager.createProducts(
+                productsList,
+                fields,
+                // Перевірка авторизації користувача
+                // додаємо пункти для регадування і видаленяня
+                // якщо користувач виконав автентифікацію
+                RequestManager.isAuthenticated() && createLinkFunction,
+                RequestManager.isAuthenticated() 
+              )
+              tableContainer.append(productsBody)
+
+              // Button edit and delete              
+              if (document.querySelector('.edit')) {
+                const editProd = document.querySelectorAll('.edit')
+                editProd.forEach((btn) => {
+                  btn.addEventListener('click', async (event) => {
+                    const path = btn.dataset.id                    
+                    const productData = await ProductsApiManager.getEditProd(path)
+                  })
+                })
+              }
+              if (document.querySelector('.delete')) {
+                const deleteProd = document.querySelectorAll('.delete')
+                deleteProd.forEach((btn) => {
+                  btn.addEventListener('click', async (event) => {
+                    const path = btn.dataset.id                    
+                    const productData = await ProductsApiManager.deleteProduct(path)
+                  })
+                })
+              }
+            } else {
+              throw new Error('Data missing')
+            }
+          } catch (error) {
+            console.error('Ошибка при загрузке данных:', error);
+          } 
+        }
+        // Виклик функції для отримання та відображення даних
+        fetchDataAndDisplay(dataSort)
+      }
+    </script>
+    </body>
+    </html>

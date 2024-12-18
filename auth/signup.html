@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication</title>
+  <link rel="stylesheet" href="../style/header.css">
+  <link rel="stylesheet" href="../style/login.css">
+    <script src="../script/RequestManager.js"></script>
+    <script src="../script/settings.js"></script>
+    <script src="../script/HeaderManager.js"></script>
+    <script src="../script/LoginApiManager.js"></script>
+    <script src="../script/FormLoginAdd.js"></script>
+</head>
+<body>
+     <script>
+      // Використання HeaderManager для створення заголовка з меню
+      document.addEventListener('DOMContentLoaded', () => {
+        new HeaderManager('auth/login.html', menuItems)
+      })
+    </script>
+<div class="wrapper">
+  <main class="page">
+    <h1>Authentication Page</h1>
+    <form method="post" class="page__container form">
+      <label for="" class="form__label">Enter yor E-mail
+        <input type="email" name="userName" id="email" placeholder="e-mail">
+      </label>
+      <label for="" class="form__label">Enter your password
+        <input type="password" name="password" id="password" placeholder="password">
+      </label>
+      <button class="form__btn btn" data-res="reg" type="submit">Registration</button>
+      <button class="form__btn btn" data-res="log" type="submit">Login</button>
+      <!-- Контейнер для повідомлень -->
+    <div id="messages"></div>
+    <!-- Контейнер для помилок -->
+    <div id="errors"></div>
+    </form>
+  </main>
+</div>
+<script>
+    const btnSubmit = document.querySelectorAll('.btn')
+  btnSubmit.forEach(btn => {
+    let artAct = document.querySelector('.form')
+    
+    btn.addEventListener('click', (e) => {
+      let resDataSet = e.target.dataset.res
+      // resDataSet === 'reg' ? '/api/v1/auth/registr' : '/api/v1/auth/login';
+      document.getElementById('login-form').addEventListener('submit', async function (e) {     
+    const form = e.target    
+    const formData = {
+      email: form.email.value,
+      password: form.password.value,
+    }
+    if(resDataSet === 'log') {
+        try {
+      const response = await LoginApiManager.login(formData, (data) => {
+        localStorage.setItem('jwt_token', data.token)
+      })
+    } catch (error) {
+       // Відображаємо повідомлення про помилку у разі невдалої авторизації
+            document.getElementById('messages').innerText =
+              'Error enter: ' + error.message
+    }
+    } else {
+        try {
+      const response = await LoginApiManager.signup(formData, (data) => {
+        localStorage.setItem('jwt_token', data.token)
+      })
+    } catch (error) {
+       // Відображаємо повідомлення про помилку у разі невдалої авторизації
+            document.getElementById('messages').innerText =
+              'Error enter: ' + error.message
+          }
+        }
+      })
+    })
+  })
+  // const btnSubmit = document.querySelectorAll('.btn')
+  // btnSubmit.forEach(btn => {
+  //   let artAct = document.querySelector('.form')
+    
+  //   btn.addEventListener('click', (e) => {
+  //     // e.preventDefault()
+  //     let resDataSet = e.target.dataset.res
+  //     if (resDataSet === 'reg') {
+  //       artAct.setAttribute('action', '/auth/registr')
+  //     } else {
+  //       artAct.setAttribute('action', '/auth/login')
+  //     }
+  //   })
+  // })
+</script>
+</body> 
+</html>

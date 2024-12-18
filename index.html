@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./style/index.css">
+  <link rel="stylesheet" href="./style/header.css">
+  <script src="script/RequestManager.js"></script>
+  <script src="script/settings.js"></script>
+  <script src="script/HeaderManager.js"></script>
+  <script src="script/LoginApiManager.js"></script>
+</head>
+<body>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      new HeaderManager('index.html', menuItems)
+    })
+  </script>
+  <main>
+    <h1>Hello on the Main Page</h1>
+    <ul class="task__list">
+      <h5></h5>
+      <li></li>
+      <li></li>
+    </ul>
+  </main>
+</body>
+</html>
